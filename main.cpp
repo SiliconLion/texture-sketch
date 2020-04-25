@@ -14,6 +14,7 @@
 
 #include "utilities.h"
 #include "geometry.h"
+#include "shader.h"
 
 //updates the glViewport when the window is resized.
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -57,49 +58,8 @@ int main()
     Geometry geom = Geometry();
 
 
-
-    const char * vertexShaderSource = readFile("shaders/shader.vert");
-    const char * fragmentShaderSource = readFile("shaders/shader.frag");
-
-    unsigned int vertexShader;
-    unsigned int fragmentShader;
-
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-
-    int  success;
-    char infoLog[512];
-
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
-
-    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
-
-    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
-    if(!success) {
-        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
-        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
-    }
-
-
-    unsigned int shaderProgram;
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
-
-    glUseProgram(shaderProgram);
-
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    Shader shader = Shader("assets/shader.vert", "assets/shader.frag");
+    
 
 
 
@@ -129,8 +89,8 @@ int main()
     stbi_image_free(data);
 
 
-    glUseProgram(shaderProgram);
-    glUniform1i(glGetUniformLocation(shaderProgram, "myTexture"), 0);
+    shader.bind();
+    glUniform1i(glGetUniformLocation(shader.program, "myTexture"), 0);
 
     std::cout << "got to the main loop" << std::endl;
 
