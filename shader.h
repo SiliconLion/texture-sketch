@@ -56,6 +56,16 @@ public:
         glDeleteShader(fragmentShader);
     }
 
+    //the name of the sampler in the shader, and the texture unit number to set it to.
+    //for instance, if the shader has the line 
+    //`uniform sampler2D myTexture;`, and we want to sample from the texture bound to 
+    // GL_TEXTURE3, we would call this function as `attachTexture("myTexture", 3);
+    void attachTexture(const char * samplerName, unsigned int textureUnitNumber) {
+        this->bind();
+        glUniform1i(glGetUniformLocation(program, samplerName), textureUnitNumber);
+        this->unbind();
+    }
+
     void bind() {
         glUseProgram(program);
     }

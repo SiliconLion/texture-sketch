@@ -9,12 +9,11 @@
 #include <iostream>
 #include <cmath>
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 
 #include "utilities.h"
 #include "geometry.h"
 #include "shader.h"
+#include "texture.h"
 
 //updates the glViewport when the window is resized.
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
@@ -55,44 +54,18 @@ int main()
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
 
+
+
     Geometry geom = Geometry();
-
-
     Shader shader = Shader("assets/shader.vert", "assets/shader.frag");
-    
+    Texture texture = Texture("assests/old-gold.png");
 
-
-
-
-
-    const char * texSource = "assests/old-gold.png";
-    int width, height;
-    //the number of color channels
-    int nrChannels;
-
-    stbi_set_flip_vertically_on_load(true);  
-    unsigned char* data = stbi_load(texSource, &width, &height, &nrChannels, 0);
-
-    unsigned int texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    
-    // set the texture wrapping/filtering options (on the currently bound texture object)
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    stbi_image_free(data);
+    shader.attachTexture("myTexture", 0);
+    //bind the texture to the first texture slot. 
 
 
     shader.bind();
-    glUniform1i(glGetUniformLocation(shader.program, "myTexture"), 0);
-
-    std::cout << "got to the main loop" << std::endl;
+    texture.bind(0);
 
     while(!glfwWindowShouldClose(window)) {
         processInput(window);
@@ -101,13 +74,8 @@ int main()
         //clears the color buffer 
         glClear(GL_COLOR_BUFFER_BIT);
 
-        //bind the texture to the first texture slot. 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture);
 
         geom.draw();
-
-
 
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
