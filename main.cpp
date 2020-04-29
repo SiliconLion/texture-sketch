@@ -22,10 +22,21 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 } 
 
 //nothing special, just processes input. its a function to keep things nice.
-void processInput(GLFWwindow *window)
+void processInput(GLFWwindow *window, Geometry& geometry, Shader& shader, Texture* textures)
 {
-    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window, true);
+    }
+    if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (textures[0].bound) {
+            textures[0].unbind();
+            textures[1].bind(0);
+        } else {
+            textures[1].unbind();
+            textures[0].bind(0);
+        }
+        
+    }
 }
 
 int main()
@@ -58,17 +69,19 @@ int main()
 
     Geometry geom = Geometry();
     Shader shader = Shader("assets/shader.vert", "assets/shader.frag");
-    Texture texture = Texture("assests/old-gold.png");
+    int texture_count = 2;
+    Texture textures[] = {Texture("assests/old-gold.png"), Texture("assests/gravel.png")};
 
     shader.attachTexture("myTexture", 0);
     //bind the texture to the first texture slot. 
 
 
     shader.bind();
-    texture.bind(0);
+    textures[0].bind(0);
 
+    int counter = 0;
     while(!glfwWindowShouldClose(window)) {
-        processInput(window);
+        processInput(window, geom, shader, textures);
         //sets clear color
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         //clears the color buffer 
@@ -80,6 +93,13 @@ int main()
         // check and call events and swap the buffers
         glfwSwapBuffers(window);
         glfwPollEvents();    
+
+        if (counter == 60) {
+            counter = 0;
+            errorAtLine_GL();
+        } else {
+            counter++;
+        }
     }
 
     glfwTerminate();

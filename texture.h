@@ -14,6 +14,8 @@ public:
     unsigned int texture;
     //the number of color channels
     int nrChannels;
+    //tells if the texture is bound or not. true is bound, false if not.
+    bool bound = false;
 
     //takes the path to the source of the texture
     Texture(const char* texSource) {
@@ -48,16 +50,23 @@ public:
         glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(data);
+
+        //unbind
+        glBindTexture(GL_TEXTURE_2D, 0);
     }
 
     //takes the number corisponding to the texture unit we want to bind to. For instance
     //if we wanted to have glActiveTexture(GL_TEXTURE3) called, we would call bind(3); 
     void bind(unsigned int textureUnitNumber) {
         glActiveTexture(GL_TEXTURE0 + textureUnitNumber);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        bound = true;
     }
 
     void unbind() {
         glBindTexture(GL_TEXTURE_2D, 0);
+        glActiveTexture(GL_TEXTURE0);
+        bound = false;
     }
 };
 
