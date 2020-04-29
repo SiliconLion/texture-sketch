@@ -10,16 +10,23 @@
 
 class Texture {
 public: 
+    //the id of the texture
     unsigned int texture;
+    //the number of color channels
+    int nrChannels;
 
     //takes the path to the source of the texture
     Texture(const char* texSource) {
         int width, height;
-        //the number of color channels
-        int nrChannels;
+        
 
         stbi_set_flip_vertically_on_load(true);  
         unsigned char* data = stbi_load(texSource, &width, &height, &nrChannels, 0);
+
+        if(nrChannels != 3 && nrChannels != 4) {
+            //To Do, turn this into a stronger error?
+           printf("error: %s cannot be constructed into a vaild texture, as it doesn't have 3 or 4 error color channels", texSource);
+        } 
 
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -31,7 +38,13 @@ public:
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
         //generates the texture image and the mipmaps
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        if (nrChannels == 3) {
+            //if theres only 3 color channels, make it an rgb texture (no alpha)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+        } else if (nrChannels == 4) {
+             //if theres 4 color channels, make it an rgba texture (has alpha)
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+        }
         glGenerateMipmap(GL_TEXTURE_2D);
 
         stbi_image_free(data);
