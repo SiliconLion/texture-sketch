@@ -1,3 +1,11 @@
+
+//This is all pretty unsafe. Generally lacking bounds testing and that sort. 
+//It's fine for this as everything is tightly controled, but not at all ready to 
+//handle the messy world of user input or to be shared with others. 
+
+
+
+
 #pragma once
 
 #ifdef __cplusplus
@@ -9,6 +17,7 @@ extern "C" {
     #include <OpenGL/gl3.h>
 #endif
 
+#include <math.h>
 
 //path is a null terminated string of the file path
 //buffsize is the size of the buffer for the file to be read into
@@ -62,6 +71,37 @@ float randFloat() {
 
 #define errorAtLine_GL() \
 printf("error. %s::%i, %x\n", __FILE__, __LINE__, glGetError())
+
+//maps an given number from one range to another range.
+double mapToRange(double input, double inputMin, double inputMax, double outMin, double outMax) {
+    if (input < inputMin || input > inputMax) {
+        printf("Error in mapToRange(). input outside of input range.\n");
+        goto ADMONISHMENT;
+    } else if( inputMax <= inputMin) {
+        printf("Error in mapToRange(). input range invalid.\n");
+        goto ADMONISHMENT;
+    } else if( outMax <= outMin) {
+        printf("Error in mapToRange(). output range invalid.\n");
+        goto ADMONISHMENT;
+    } else {
+        goto NOPROBLEM;
+    }
+
+    ADMONISHMENT: 
+        printf("Also since this error has been triggered you have to actually do a \
+        proper error handling job now. \n");
+        //does NAN work for floating point numbers? 
+        return NAN;
+
+    NOPROBLEM:
+        double inputRange = inputMax - inputMin;
+        double outRange   = outMax   - outMin  ;
+        double scale = outRange / inputRange;
+
+        double output = ( (input - inputMin) * scale) + outMin;
+        return output;
+
+}
 
 #ifdef __cplusplus
 }
